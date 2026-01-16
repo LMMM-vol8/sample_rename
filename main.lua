@@ -31,45 +31,55 @@ end
 table.remove(words, #words)
 
 -- display state
-local index_list = {}
-while true do
-  for i = 1, #words do
-    print(string.format("Index %d: %s", i, words[i]))
-  end
-  print("Continue (Y/n):")
-  if io.read():upper() ~= "Y" then
-    print("Loop End")
-    break;
-  end
-  -- Delete Word
-  print("Choose delete word index :")
-  local input = io.read()
-  local index = tonumber(input)
-  if index or 0 < index or index > #words then
-    print("Input number is invalid data")
-  end
-  table.remove(words, index)
-  table.insert(index_list, index)
+local active_indices = {}
+for i = 1, #words do
+  active_indices[i] = i
 end
 
+local deleted_indices = {}
+
+while true do
+  print("\n--- Current Name Structure ---")
+  for i, original_idx in ipairs(active_indices) do
+    print(string.format("[%d] %s", i, words[original_idx]))
+  end
+
+  print("Continue (Y/n):")
+  if io.read():upper() ~= "Y" then break end
+
+  -- Delete Word
+  print("Choose index to REMOVE:")
+  local input = io.read()
+  local choice = tonumber(input)
+
+  if choice and choice >= 1 and choice <= #active_indices then
+    local remove_original_idx = table.remove(active_indices, choice)
+    table.insert(deleted_indices, remove_original_idx)
+    print("Removed: " .. words[remove_original_idx])
+  else
+    print("invalid data")
+  end
+end
+
+--Batch Processing
+table.sort(deleted_indices, function(a, b) return a > b end)
 
 for i = 1, #files do
   local current_name = files[i]
-  local words = {}
+  local current_words = {}
 
   local base_name = current_name:gsub("%.wav$", "")
   for word in base_name:gmatch("([^%s]+)") do
-    table.insert(words, word)
+    table.insert(current_words, word)
   end
 
-  table.sort(index_list, function(a, b) return a > b end)
-  for _, idx in ipairs(index_list) do
-    if words[idx] then
-      table.remove(words, idx)
+  for _, idx in ipairs(deleted_indices) do
+    if current_words[idx] then
+      table.remove(current_words, idx)
     end
   end
 
-  local new_name = table.concat(words, " ") .. ".wav"
-  print(string.format("Rename: %s -> %s", current_name, new_name))
-  --os.rename(current_name, new_name)
+  local result = table.concat(current_words, " ") .. ".wav"
+  print(string.format("Result: %s", result))
+  --os.rename(current_name, result)
 end
