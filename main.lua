@@ -44,11 +44,8 @@ while true do
     print(string.format("[%d] %s", i, words[original_idx]))
   end
 
-  print("Continue (Y/n):")
-  if io.read():upper() ~= "Y" then break end
-
   -- Delete Word
-  print("Choose index to REMOVE:")
+  print("Index to REMOVE (or any other key to save):")
   local input = io.read()
   local choice = tonumber(input)
 
@@ -57,7 +54,8 @@ while true do
     table.insert(deleted_indices, remove_original_idx)
     print("Removed: " .. words[remove_original_idx])
   else
-    print("invalid data")
+    print("Are you sure you want to rename ? (Y/n):")
+    if io.read():upper() == "Y" then break end
   end
 end
 
@@ -81,5 +79,5 @@ for i = 1, #files do
 
   local result = table.concat(current_words, " ") .. ".wav"
   print(string.format("Result: %s", result))
-  --os.rename(current_name, result)
+  os.rename(current_name, result)
 end
